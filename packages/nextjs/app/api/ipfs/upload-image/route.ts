@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
     return Response.json({
       success: true,
       ipfsHash: result.IpfsHash,
-      imageUrl: `https://gateway.pinata.cloud/ipfs/${result.IpfsHash}`
+      imageUrl: `https://gateway.pinata.cloud/ipfs/${result.IpfsHash}`,
     });
   } catch (error) {
     console.error("上传图片到Pinata错误:", error);

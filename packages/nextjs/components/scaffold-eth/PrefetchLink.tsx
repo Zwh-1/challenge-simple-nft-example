@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import Link, { LinkProps } from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -35,23 +35,23 @@ export const PrefetchLink: React.FC<PrefetchLinkProps> = ({
 
   const prefetchRoute = useCallback(() => {
     if (hasPrefetchedRef.current) return;
-    
+
     try {
-      if (typeof href === 'string') {
+      if (typeof href === "string") {
         router.prefetch(href);
-      } else if (href && typeof href === 'object' && href.pathname) {
+      } else if (href && typeof href === "object" && href.pathname) {
         router.prefetch(href.pathname);
       }
       hasPrefetchedRef.current = true;
     } catch (error) {
-      console.warn('路由预加载失败:', href, error);
+      console.warn("路由预加载失败:", href, error);
     }
   }, [router, href]);
 
   // Handle hover prefetching
   const handleMouseEnter = useCallback(() => {
     if (!prefetchOnHover || hasPrefetchedRef.current) return;
-    
+
     prefetchTimeoutRef.current = setTimeout(() => {
       prefetchRoute();
     }, prefetchDelay);
@@ -68,17 +68,17 @@ export const PrefetchLink: React.FC<PrefetchLinkProps> = ({
     if (!prefetchOnVisible || !linkRef.current) return;
 
     const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
+      entries => {
+        entries.forEach(entry => {
           if (entry.isIntersecting && !hasPrefetchedRef.current) {
             prefetchRoute();
           }
         });
       },
       {
-        rootMargin: '50px',
+        rootMargin: "50px",
         threshold: 0.1,
-      }
+      },
     );
 
     observer.observe(linkRef.current);
@@ -118,20 +118,26 @@ export const usePrefetch = () => {
   const router = useRouter();
   const prefetchedRoutes = useRef<Set<string>>(new Set());
 
-  const prefetch = useCallback((href: string) => {
-    if (prefetchedRoutes.current.has(href)) return;
-    
-    try {
-      router.prefetch(href);
-      prefetchedRoutes.current.add(href);
-    } catch (error) {
-      console.warn('路由预加载失败:', href, error);
-    }
-  }, [router]);
+  const prefetch = useCallback(
+    (href: string) => {
+      if (prefetchedRoutes.current.has(href)) return;
 
-  const prefetchMultiple = useCallback((hrefs: string[]) => {
-    hrefs.forEach((href) => prefetch(href));
-  }, [prefetch]);
+      try {
+        router.prefetch(href);
+        prefetchedRoutes.current.add(href);
+      } catch (error) {
+        console.warn("路由预加载失败:", href, error);
+      }
+    },
+    [router],
+  );
+
+  const prefetchMultiple = useCallback(
+    (hrefs: string[]) => {
+      hrefs.forEach(href => prefetch(href));
+    },
+    [prefetch],
+  );
 
   const clearCache = useCallback(() => {
     prefetchedRoutes.current.clear();
@@ -151,12 +157,7 @@ export const usePrefetch = () => {
 export const CommonRoutesPrefetcher: React.FC<{ routes?: string[] }> = ({ routes }) => {
   const { prefetchMultiple } = usePrefetch();
 
-  const defaultRoutes = [
-    '/',
-    '/my-nfts',
-    '/marketplace',
-    '/mint',
-  ];
+  const defaultRoutes = ["/", "/my-nfts", "/marketplace", "/mint"];
 
   const routesToPrefetch = routes || defaultRoutes;
 

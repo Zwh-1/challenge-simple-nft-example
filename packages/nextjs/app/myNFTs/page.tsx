@@ -1,7 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AirdropMinter, BatchNFTMinter, CustomNFTMinter, ExcelBatchMinter, MyBlindAuctions, MyHoldings, MyListings } from "./_components";
+import {
+  AirdropMinter,
+  BatchNFTMinter,
+  CustomNFTMinter,
+  ExcelBatchMinter,
+  MyBlindAuctions,
+  MyHoldings,
+  MyListings,
+} from "./_components";
 import type { NextPage } from "next";
 import { useAccount } from "wagmi";
 import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";

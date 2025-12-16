@@ -4,14 +4,15 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
   const { slug } = await params;
   const raw = slug || "team";
   const base = raw.replace(/\.(svg|png)$/i, "");
-  const abbr = base
-    .replace(/[^A-Za-z0-9\u4e00-\u9fa5 ]/g, " ")
-    .trim()
-    .split(/\s+/)
-    .map(w => w[0])
-    .join("")
-    .slice(0, 3)
-    .toUpperCase() || "TEAM";
+  const abbr =
+    base
+      .replace(/[^A-Za-z0-9\u4e00-\u9fa5 ]/g, " ")
+      .trim()
+      .split(/\s+/)
+      .map(w => w[0])
+      .join("")
+      .slice(0, 3)
+      .toUpperCase() || "TEAM";
 
   const bg = "#e1faff"; // align with light theme base-200
   const stroke = "#c8f5ff"; // base-300

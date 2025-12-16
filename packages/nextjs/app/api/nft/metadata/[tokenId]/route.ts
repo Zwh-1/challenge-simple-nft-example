@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import { createPublicClient, http, getAddress } from "viem";
-import { localhost } from "viem/chains";
 import fs from "fs";
 import path from "path";
+import { createPublicClient, getAddress, http } from "viem";
+import { localhost } from "viem/chains";
 
 // 公共客户端读取配置链上的合约
 const publicClient = createPublicClient({
@@ -10,10 +10,7 @@ const publicClient = createPublicClient({
   transport: http(),
 });
 
-export async function GET(
-  _request: Request,
-  { params }: { params: Promise<{ tokenId: string }> }
-) {
+export async function GET(_request: Request, { params }: { params: Promise<{ tokenId: string }> }) {
   try {
     const { tokenId } = await params;
     if (!tokenId) {
@@ -22,7 +19,14 @@ export async function GET(
 
     // 动态读取合约地址从部署文件
     // 确保使用最新部署的地址，避免使用旧地址导致的错误
-    const deploymentPath = path.join(process.cwd(), "..", "hardhat", "deployments", "localhost", "YourCollectible.json");
+    const deploymentPath = path.join(
+      process.cwd(),
+      "..",
+      "hardhat",
+      "deployments",
+      "localhost",
+      "YourCollectible.json",
+    );
 
     let nftContractAddress: string;
     try {
@@ -92,6 +96,9 @@ export async function GET(
     });
   } catch (error) {
     console.error("获取NFT元数据错误:", error);
-    return NextResponse.json({ error: "内部服务器错误", details: error instanceof Error ? error.message : String(error) }, { status: 500 });
+    return NextResponse.json(
+      { error: "内部服务器错误", details: error instanceof Error ? error.message : String(error) },
+      { status: 500 },
+    );
   }
 }

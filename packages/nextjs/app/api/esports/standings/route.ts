@@ -5,7 +5,14 @@ export async function GET(req: NextRequest) {
   const key = url.searchParams.get("league") || "LCK";
   const data = {
     league: { key, label: key },
-    rankings: [] as Array<{ name: string; slug?: string; code?: string; image?: string; wins?: number; losses?: number }>,
+    rankings: [] as Array<{
+      name: string;
+      slug?: string;
+      code?: string;
+      image?: string;
+      wins?: number;
+      losses?: number;
+    }>,
   };
   return NextResponse.json({ data }, { status: 200 });
 }

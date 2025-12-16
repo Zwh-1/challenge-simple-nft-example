@@ -1,10 +1,11 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import type { NextPage } from "next";
+
+/* eslint-disable @next/next/no-img-element */
 
 /* eslint-disable react-hooks/exhaustive-deps */
 
@@ -544,11 +545,10 @@ const Home: NextPage = () => {
                     key={cat}
                     onClick={() => setSelectedCategory(cat)}
                     aria-current={selectedCategory === cat ? "true" : undefined}
-                    className={`relative flex items-center gap-2 px-3 py-2 rounded-full border snap-start ${
-                      selectedCategory === cat
+                    className={`relative flex items-center gap-2 px-3 py-2 rounded-full border snap-start ${selectedCategory === cat
                         ? "bg-primary text-primary-content border-primary after:absolute after:bottom-0 after:left-3 after:right-3 after:h-[2px] after:bg-primary"
                         : "bg-base-100 border-base-300"
-                    }`}
+                      }`}
                   >
                     <span className="text-sm">{cat}</span>
                   </button>
@@ -731,11 +731,10 @@ const Home: NextPage = () => {
                     <button
                       key={tag}
                       onClick={() => setSelectedWorkTag(tag)}
-                      className={`px-3 py-1 rounded-full border text-sm ${
-                        selectedWorkTag === tag
+                      className={`px-3 py-1 rounded-full border text-sm ${selectedWorkTag === tag
                           ? "bg-secondary text-secondary-content border-secondary"
                           : "bg-base-100 border-base-300"
-                      }`}
+                        }`}
                     >
                       {tag}
                     </button>

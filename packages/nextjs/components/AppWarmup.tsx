@@ -20,15 +20,10 @@ export const AppWarmup = () => {
     idle(async () => {
       try {
         // Prefetch common routes
-        [
-          "/myNFTs",
-          "/marketplace",
-          "/ipfsUpload",
-          "/ipfsDownload",
-          "/transfers",
-          "/blockexplorer",
-        ].forEach(path => {
-          try { router.prefetch(path); } catch {}
+        ["/myNFTs", "/marketplace", "/ipfsUpload", "/ipfsDownload", "/transfers", "/blockexplorer"].forEach(path => {
+          try {
+            router.prefetch(path);
+          } catch {}
         });
 
         // Preload lightweight assets
@@ -44,9 +39,7 @@ export const AppWarmup = () => {
           "/api/esports/schedule?league=LCK",
           "/api/esports/rosters?league=LCK",
         ];
-        await Promise.all(
-          apis.map(u => fetch(u, { method: "GET" }).catch(() => void 0))
-        );
+        await Promise.all(apis.map(u => fetch(u, { method: "GET" }).catch(() => void 0)));
       } catch {
         // ignore warmup errors
       }

@@ -34,8 +34,8 @@ const BlockExplorer: NextPage = () => {
             <code className="italic bg-base-300 text-base font-bold"> targetNetwork </code> is not localhost
           </p>
           <p className="m-0">
-            - 你正在 <code className="italic bg-base-300 text-base font-bold">{targetNetwork.name}</code> .这个
-            block explorer 只能用于 <code className="italic bg-base-300 text-base font-bold">本地</code>.
+            - 你正在 <code className="italic bg-base-300 text-base font-bold">{targetNetwork.name}</code> .这个 block
+            explorer 只能用于 <code className="italic bg-base-300 text-base font-bold">本地</code>.
           </p>
           <p className="mt-1 break-normal">
             - 你可以使用{" "}

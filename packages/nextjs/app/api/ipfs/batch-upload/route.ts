@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     const parseResult = Papa.parse(csvText, {
       header: true,
       skipEmptyLines: true,
-      transformHeader: (header: string) => header.trim().replace(/^[\uFEFF]/, ''), // 移除字节顺序标记（BOM）
+      transformHeader: (header: string) => header.trim().replace(/^[\uFEFF]/, ""), // 移除字节顺序标记（BOM）
     });
 
     if (parseResult.errors.length > 0) {
@@ -98,7 +98,7 @@ export async function POST(request: NextRequest) {
         if (traitType && traitValue) {
           attributes.push({
             trait_type: traitType,
-            value: traitValue
+            value: traitValue,
           });
         }
       }
@@ -106,18 +106,18 @@ export async function POST(request: NextRequest) {
       // 添加默认属性
       attributes.push({
         trait_type: "Batch Upload",
-        value: "Excel Import"
+        value: "Excel Import",
       });
       attributes.push({
         trait_type: "Created",
-        value: new Date().toISOString().split('T')[0]
+        value: new Date().toISOString().split("T")[0],
       });
 
       const metadata = {
         name: nft.name,
         description: nft.description || `Custom NFT: ${nft.name}`,
         image: imageUrl,
-        attributes: attributes
+        attributes: attributes,
       };
 
       // 上传元数据到Pinata
@@ -146,21 +146,20 @@ export async function POST(request: NextRequest) {
       metadataResults.push({
         name: nft.name,
         metadataHash: metadataResult.IpfsHash,
-        imageUrl: imageUrl
+        imageUrl: imageUrl,
       });
     }
 
     return NextResponse.json({
       success: true,
       message: `成功处理 ${metadataResults.length} 个NFT`,
-      results: metadataResults
+      results: metadataResults,
     });
-
   } catch (error) {
     console.error("批量上传错误:", error);
     return NextResponse.json({
       success: false,
-      error: error instanceof Error ? error.message : "批量上传失败"
+      error: error instanceof Error ? error.message : "批量上传失败",
     });
   }
 }

@@ -45,9 +45,7 @@ const IpfsUpload: NextPage = () => {
               Upload to IPFS
             </span>
           </h1>
-          <p className="text-lg text-gray-300">
-            Create and upload your NFT metadata to the decentralized web.
-          </p>
+          <p className="text-lg text-gray-300">Create and upload your NFT metadata to the decentralized web.</p>
         </div>
 
         <div className="bg-base-300/50 rounded-xl p-6 border border-base-content/5 shadow-inner">
@@ -72,8 +70,9 @@ const IpfsUpload: NextPage = () => {
 
         <div className="mt-10 flex justify-center">
           <button
-            className={`btn btn-primary btn-lg px-10 rounded-full font-bold text-lg bg-gradient-to-r from-blue-500 to-purple-600 border-none hover:shadow-lg hover:scale-105 transition-all duration-300 ${loading ? "loading" : ""
-              }`}
+            className={`btn btn-primary btn-lg px-10 rounded-full font-bold text-lg bg-gradient-to-r from-blue-500 to-purple-600 border-none hover:shadow-lg hover:scale-105 transition-all duration-300 ${
+              loading ? "loading" : ""
+            }`}
             disabled={loading}
             onClick={handleIpfsUpload}
           >

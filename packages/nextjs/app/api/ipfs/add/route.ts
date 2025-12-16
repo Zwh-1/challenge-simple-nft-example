@@ -8,7 +8,7 @@ export async function POST(request: Request) {
     const res = await ipfsClient.add(JSON.stringify(body));
     return Response.json(res);
   } catch (error) {
-      console.log("添加到IPFS错误", error);
-      return Response.json({ error: "添加到IPFS错误" });
-    }
+    console.log("添加到IPFS错误", error);
+    return Response.json({ error: "添加到IPFS错误" });
+  }
 }

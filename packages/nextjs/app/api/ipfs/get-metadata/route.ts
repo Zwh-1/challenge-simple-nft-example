@@ -1,5 +1,5 @@
-import { getNFTMetadataFromIPFS } from "~~/utils/simpleNFT/ipfs";
 import { NextResponse } from "next/server";
+import { getNFTMetadataFromIPFS } from "~~/utils/simpleNFT/ipfs";
 
 export async function POST(request: Request) {
   try {
@@ -17,10 +17,7 @@ export async function POST(request: Request) {
     const { ipfsHash } = body;
 
     if (!ipfsHash || typeof ipfsHash !== "string") {
-      return NextResponse.json(
-        { error: "ipfsHash is required and must be a string" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "ipfsHash is required and must be a string" }, { status: 400 });
     }
 
     const res = await getNFTMetadataFromIPFS(ipfsHash);

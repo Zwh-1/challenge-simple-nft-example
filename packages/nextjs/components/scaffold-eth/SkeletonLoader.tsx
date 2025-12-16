@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import clsx from "clsx";
 
 interface SkeletonLoaderProps {
@@ -59,7 +59,7 @@ export const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({
     animationClasses[animation],
     rounded && !circle && "rounded-lg",
     circle && "rounded-full",
-    className
+    className,
   );
 
   const skeletonStyle = {
@@ -70,11 +70,7 @@ export const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({
   return (
     <>
       {Array.from({ length: count }).map((_, index) => (
-        <div
-          key={index}
-          className={skeletonClass}
-          style={skeletonStyle}
-        />
+        <div key={index} className={skeletonClass} style={skeletonStyle} />
       ))}
     </>
   );
@@ -240,11 +236,7 @@ export const LoadingWrapper: React.FC<LoadingWrapperProps> = ({
     }
   };
 
-  return (
-    <div className={className}>
-      {renderSkeleton()}
-    </div>
-  );
+  return <div className={className}>{renderSkeleton()}</div>;
 };
 
 export default SkeletonLoader;

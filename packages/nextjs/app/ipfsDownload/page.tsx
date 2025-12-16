@@ -44,9 +44,7 @@ const IpfsDownload: NextPage = () => {
               从 IPFS 下载
             </span>
           </h1>
-          <p className="text-lg text-gray-300">
-            直接从去中心化网络检索和查看 NFT 元数据。
-          </p>
+          <p className="text-lg text-gray-300">直接从去中心化网络检索和查看 NFT 元数据。</p>
         </div>
 
         <div className="flex justify-center mb-8">
@@ -66,8 +64,9 @@ const IpfsDownload: NextPage = () => {
 
         <div className="flex justify-center mb-10">
           <button
-            className={`btn btn-primary btn-lg px-10 rounded-full font-bold text-lg bg-gradient-to-r from-cyan-500 to-blue-600 border-none hover:shadow-lg hover:scale-105 transition-all duration-300 ${loading ? "loading" : ""
-              }`}
+            className={`btn btn-primary btn-lg px-10 rounded-full font-bold text-lg bg-gradient-to-r from-cyan-500 to-blue-600 border-none hover:shadow-lg hover:scale-105 transition-all duration-300 ${
+              loading ? "loading" : ""
+            }`}
             disabled={loading}
             onClick={handleIpfsDownload}
           >

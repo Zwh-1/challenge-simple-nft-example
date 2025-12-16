@@ -8,10 +8,7 @@ const publicClient = createPublicClient({
   transport: http(),
 });
 
-export async function GET(
-  request: Request,
-  { params }: { params: Promise<{ tokenId: string }> }
-) {
+export async function GET(request: Request, { params }: { params: Promise<{ tokenId: string }> }) {
   try {
     const { tokenId } = await params;
 
@@ -75,9 +72,6 @@ export async function GET(
     });
   } catch (error) {
     console.error("获取NFT元数据错误:", error);
-    return NextResponse.json(
-      { error: "服务器内部错误" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "服务器内部错误" }, { status: 500 });
   }
 }
