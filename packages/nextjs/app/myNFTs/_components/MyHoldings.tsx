@@ -15,6 +15,7 @@ export interface Collectible extends Partial<NFTMetaData> {
   id: number;
   uri: string;
   owner: string;
+  isListed?: boolean;
 }
 
 export const MyHoldings = () => {
@@ -58,6 +59,13 @@ export const MyHoldings = () => {
     watch: true,
   });
 
+  // 获取所有活跃的市场列表，用于检查是否已上架
+  const { data: activeListings } = useScaffoldReadContract({
+    contractName: "NFTMarketplace",
+    functionName: "getAllActiveListings",
+    watch: true,
+  });
+
   useEffect(() => {
     const updateMyCollectibles = async (): Promise<void> => {
       if (myTotalBalance === undefined || yourCollectibleContract === undefined || connectedAddress === undefined)
@@ -83,12 +91,20 @@ export const MyHoldings = () => {
       }
 
       // 并发获取 metadata（避免逐条串行导致页面长时间转圈）
-      const results = await Promise.allSettled(
-        tokens.map(t => {
-          // 直接传入 tokenURI，服务端会规范化为 CID
-          return getMetadataFromIPFS(t.tokenURI as unknown as string);
-        }),
-      );
+      // 限制并发数
+      const CONCURRENCY_LIMIT = 5;
+      const results: PromiseSettledResult<any>[] = [];
+
+      for (let i = 0; i < tokens.length; i += CONCURRENCY_LIMIT) {
+        const chunk = tokens.slice(i, i + CONCURRENCY_LIMIT);
+        const chunkResults = await Promise.allSettled(
+          chunk.map(t => {
+            // 直接传入 tokenURI，服务端会规范化为 CID
+            return getMetadataFromIPFS(t.tokenURI as unknown as string);
+          }),
+        );
+        results.push(...chunkResults);
+      }
 
       const collectibleUpdate: Collectible[] = [];
       for (let i = 0; i < tokens.length; i++) {
@@ -99,6 +115,15 @@ export const MyHoldings = () => {
           uri: t.tokenURI,
           owner: connectedAddress,
         } as Collectible;
+
+        // Check if listed
+        if (activeListings && Array.isArray(activeListings)) {
+          const listing = activeListings.find((l: any) => l.tokenId === t.tokenId && l.active);
+          if (listing) {
+            base.isListed = true;
+          }
+        }
+
         if (r.status === "fulfilled" && r.value) {
           collectibleUpdate.push({ ...base, ...(r.value as NFTMetaData) });
         } else {
@@ -118,7 +143,7 @@ export const MyHoldings = () => {
 
     updateMyCollectibles();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [connectedAddress, myTotalBalance]);
+  }, [connectedAddress, myTotalBalance, activeListings]);
 
   // 派生：根据搜索过滤
   const filteredCollectibles = useMemo(() => {
@@ -197,18 +222,14 @@ export const MyHoldings = () => {
         notification.success("授权成功");
       }
 
-      // 逐个上架
-      for (let i = 0; i < selectedIds.length; i++) {
-        const tokenId = BigInt(selectedIds[i]);
-        setBulkProgress({ listed: i, total: selectedIds.length, currentTokenId: selectedIds[i] });
-        await writeMarketplace(
-          {
-            functionName: "listNFT",
-            args: [nftContractAddress, tokenId, parseEther(bulkPrice)],
-          },
-          { blockConfirmations: 1 },
-        );
-      }
+      // 批量上架
+      await writeMarketplace(
+        {
+          functionName: "batchListNFT",
+          args: [nftContractAddress, selectedIds.map(id => BigInt(id)), parseEther(bulkPrice)],
+        },
+        { blockConfirmations: 1 },
+      );
       setBulkProgress({ listed: selectedIds.length, total: selectedIds.length });
       notification.success("批量上架成功");
       setSelectedIds([]);
@@ -263,7 +284,10 @@ export const MyHoldings = () => {
               value={bulkPrice}
               onChange={e => setBulkPrice(e.target.value)}
             />
-            <button className="btn btn-outline btn-sm" onClick={() => setSelectedIds(pageItems.map(i => i.id))}>
+            <button
+              className="btn btn-outline btn-sm"
+              onClick={() => setSelectedIds(pageItems.filter(i => !i.isListed).map(i => i.id))}
+            >
               全选本页
             </button>
             <button className="btn btn-outline btn-sm" onClick={() => setSelectedIds([])}>
@@ -312,7 +336,7 @@ export const MyHoldings = () => {
               <NFTCard
                 nft={item}
                 key={item.id}
-                selectable={bulkMode}
+                selectable={bulkMode && !item.isListed}
                 selected={selectedIds.includes(item.id)}
                 onSelectedChange={checked => {
                   setSelectedIds(prev => {
