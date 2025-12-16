@@ -77,7 +77,9 @@ function normalizeIpfsHash(input: string): string {
   return cid;
 }
 
-async function fetchWithTimeout(url: string, ms = 12000): Promise<Response> {
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+async function fetchWithTimeout(url: string, ms = 10000): Promise<Response> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), ms);
   try {
@@ -97,16 +99,31 @@ export async function getNFTMetadataFromIPFS(ipfsHash: string) {
     `https://ipfs.io/ipfs/${cid}`,
     `https://dweb.link/ipfs/${cid}`,
     `https://gateway.pinata.cloud/ipfs/${cid}`,
+    `https://cloudflare-ipfs.com/ipfs/${cid}`,
   ];
 
   let lastError: any = null;
+
   for (const url of gateways) {
     try {
+      // Add a small random delay to avoid hitting rate limits simultaneously
+      await sleep(Math.floor(Math.random() * 500));
+
       const response = await fetchWithTimeout(url, 10000);
+
+      if (response.status === 429) {
+        // If rate limited, wait longer and try next gateway
+        console.warn(`Rate limited at ${url}, waiting...`);
+        await sleep(2000);
+        lastError = new Error(`HTTP 429 Too Many Requests at ${url}`);
+        continue;
+      }
+
       if (!response.ok) {
         lastError = new Error(`HTTP ${response.status} ${response.statusText} at ${url}`);
         continue;
       }
+
       const jsonObject = await response.json();
 
       // Sanitize image URL if it points to a restricted gateway
@@ -119,7 +136,7 @@ export async function getNFTMetadataFromIPFS(ipfsHash: string) {
         if (isIpfsScheme || isIpfsPath) {
           const imgCid = normalizeIpfsHash(image);
           if (imgCid) {
-            // Use ipfs.io as a fallback since cloudflare-ipfs.com was failing
+            // Use ipfs.io as a fallback
             jsonObject.image = `https://ipfs.io/ipfs/${imgCid}`;
           }
         }
@@ -128,10 +145,12 @@ export async function getNFTMetadataFromIPFS(ipfsHash: string) {
       return jsonObject;
     } catch (err) {
       lastError = err;
+      // Continue to next gateway
     }
   }
+
   if (lastError) {
     throw lastError;
   }
-  throw new Error("Failed to fetch IPFS metadata");
+  throw new Error("Failed to fetch IPFS metadata from all gateways");
 }
