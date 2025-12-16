@@ -77,18 +77,30 @@ export const MyListings = () => {
       try {
         setLoading(true);
         const result: MyListingItem[] = [];
-        for (const l of filteredActiveListings) {
-          try {
-            // 仅处理我们合约的NFT
-            const tokenURI = (await yourCollectibleContract.read.tokenURI([l.tokenId])) as string;
-            const ipfsHash = tokenURI.replace("https://green-payable-guan-79.mypinata.cloud/ipfs/", "");
-            const metadata = await getMetadataFromIPFS(ipfsHash);
-            result.push({ ...l, metadata });
-          } catch (e) {
-            // 即使元数据失败也保留记录
-            console.error("获取NFT元数据失败", e);
-            result.push({ ...l });
-          }
+        const CONCURRENCY_LIMIT = 5;
+
+        // Process in chunks
+        for (let i = 0; i < filteredActiveListings.length; i += CONCURRENCY_LIMIT) {
+          if (cancelled) break;
+          const chunk = filteredActiveListings.slice(i, i + CONCURRENCY_LIMIT);
+
+          const chunkResults = await Promise.all(
+            chunk.map(async (l) => {
+              try {
+                // 仅处理我们合约的NFT
+                const tokenURI = (await yourCollectibleContract.read.tokenURI([l.tokenId])) as string;
+                const ipfsHash = tokenURI.replace("https://green-payable-guan-79.mypinata.cloud/ipfs/", "");
+                const metadata = await getMetadataFromIPFS(ipfsHash);
+                return { ...l, metadata };
+              } catch (e) {
+                // 即使元数据失败也保留记录
+                console.error("获取NFT元数据失败", e);
+                return { ...l };
+              }
+            })
+          );
+
+          result.push(...chunkResults);
         }
         if (!cancelled) {
           setMyListings(result);
