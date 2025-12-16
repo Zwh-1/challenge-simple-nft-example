@@ -244,17 +244,26 @@ export default function Marketplace() {
         return;
       }
 
-      const listingsWithMetadata = await Promise.all(
-        activeListings.map(async (listing: MarketplaceListing) => {
-          const metadata = await fetchNFTMetadata(listing.tokenId);
-          return {
-            ...listing,
-            metadata,
-          };
-        }),
-      );
+      // Concurrency limit: 5 requests at a time
+      const CONCURRENCY_LIMIT = 5;
+      const results: MarketplaceNFT[] = [];
 
-      setListings(listingsWithMetadata);
+      // Process in chunks
+      for (let i = 0; i < activeListings.length; i += CONCURRENCY_LIMIT) {
+        const chunk = activeListings.slice(i, i + CONCURRENCY_LIMIT);
+        const chunkResults = await Promise.all(
+          chunk.map(async (listing: MarketplaceListing) => {
+            const metadata = await fetchNFTMetadata(listing.tokenId);
+            return {
+              ...listing,
+              metadata,
+            };
+          }),
+        );
+        results.push(...chunkResults);
+      }
+
+      setListings(results);
       setLoading(false);
       setCurrentPage(1); // 数据更新后重置到第一页
       setSelectedListingIds([]); // 重置选择
