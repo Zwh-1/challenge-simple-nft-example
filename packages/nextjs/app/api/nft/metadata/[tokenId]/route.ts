@@ -3,6 +3,7 @@ import fs from "fs";
 import path from "path";
 import { createPublicClient, getAddress, http } from "viem";
 import { localhost } from "viem/chains";
+import { getNFTMetadataFromIPFS } from "~~/utils/simpleNFT/ipfs";
 
 // 公共客户端读取配置链上的合约
 const publicClient = createPublicClient({
@@ -69,12 +70,25 @@ export async function GET(_request: Request, { params }: { params: Promise<{ tok
     }
 
     // 归一化ipfs:// URL到公共网关
-    let metadataUrl = tokenURI as string;
+    const metadataUrl = tokenURI as string;
+
+    // 如果是 IPFS 协议，使用我们的增强工具函数
     if (metadataUrl.startsWith("ipfs://")) {
-      const gateway = process.env.NEXT_PUBLIC_IPFS_GATEWAY_BASE || "https://ipfs.io/ipfs/";
-      metadataUrl = metadataUrl.replace("ipfs://", gateway);
+      try {
+        const metadata = await getNFTMetadataFromIPFS(metadataUrl);
+        console.log("元数据获取成功 (via IPFS utility)");
+        return NextResponse.json(metadata, {
+          status: 200,
+          headers: { "Cache-Control": "public, max-age=60" },
+        });
+      } catch (e) {
+        console.error("通过工具函数获取IPFS元数据失败:", e);
+        // Fallback or error
+        return NextResponse.json({ error: "获取元数据失败" }, { status: 500 });
+      }
     }
 
+    // 否则作为普通 HTTP URL 处理
     console.log(`从URL获取元数据: ${metadataUrl}`);
     const metadataResponse = await fetch(metadataUrl);
     if (!metadataResponse.ok) {
