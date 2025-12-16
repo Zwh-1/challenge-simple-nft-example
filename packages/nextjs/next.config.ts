@@ -25,6 +25,31 @@ if (isIpfs) {
   nextConfig.images = {
     unoptimized: true,
   };
+} else {
+  nextConfig.images = {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "gateway.pinata.cloud",
+      },
+      {
+        protocol: "https",
+        hostname: "green-payable-guan-79.mypinata.cloud",
+      },
+      {
+        protocol: "https",
+        hostname: "austingriffith.com",
+      },
+      {
+        protocol: "https",
+        hostname: "ipfs.io",
+      },
+      {
+        protocol: "https",
+        hostname: "cloudflare-ipfs.com",
+      },
+    ],
+  };
 }
 
 module.exports = nextConfig;

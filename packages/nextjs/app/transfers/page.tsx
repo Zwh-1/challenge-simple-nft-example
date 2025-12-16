@@ -38,7 +38,7 @@ const Transfers: NextPage = () => {
               {!transferEvents || transferEvents.length === 0 ? (
                 <tr>
                   <td colSpan={3} className="text-center">
-                    No events found
+                    没有事件
                   </td>
                 </tr>
               ) : (

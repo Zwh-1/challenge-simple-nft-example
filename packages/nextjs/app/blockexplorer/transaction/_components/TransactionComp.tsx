@@ -76,7 +76,7 @@ const TransactionComp = ({ txHash }: { txHash: Hash }) => {
                     transaction.to && <Address address={transaction.to} format="long" onlyEnsOrAddress />
                   ) : (
                     <span>
-                      Contract Creation:
+                      合同创建：
                       <Address address={receipt.contractAddress} format="long" onlyEnsOrAddress />
                     </span>
                   )}
@@ -84,7 +84,7 @@ const TransactionComp = ({ txHash }: { txHash: Hash }) => {
               </tr>
               <tr>
                 <td>
-                  <strong>Value:</strong>
+                  <strong>值:</strong>
                 </td>
                 <td>
                   {formatEther(transaction.value)} {targetNetwork.nativeCurrency.symbol}
@@ -92,12 +92,12 @@ const TransactionComp = ({ txHash }: { txHash: Hash }) => {
               </tr>
               <tr>
                 <td>
-                  <strong>Function called:</strong>
+                  <strong>函数调用:</strong>
                 </td>
                 <td>
                   <div className="w-full md:max-w-[600px] lg:max-w-[800px] overflow-x-auto whitespace-nowrap">
                     {functionCalled === "0x" ? (
-                      "This transaction did not call any function."
+                      "这个交易没有调用任何函数。"
                     ) : (
                       <>
                         <span className="mr-2">{getFunctionDetails(transaction)}</span>
@@ -109,13 +109,13 @@ const TransactionComp = ({ txHash }: { txHash: Hash }) => {
               </tr>
               <tr>
                 <td>
-                  <strong>Gas Price:</strong>
+                  <strong>Gas 价格:</strong>
                 </td>
                 <td>{formatUnits(transaction.gasPrice || 0n, 9)} Gwei</td>
               </tr>
               <tr>
                 <td>
-                  <strong>Data:</strong>
+                  <strong>数据:</strong>
                 </td>
                 <td className="form-control">
                   <textarea
@@ -127,7 +127,7 @@ const TransactionComp = ({ txHash }: { txHash: Hash }) => {
               </tr>
               <tr>
                 <td>
-                  <strong>Logs:</strong>
+                  <strong>日志:</strong>
                 </td>
                 <td>
                   <ul>

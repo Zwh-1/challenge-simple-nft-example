@@ -48,7 +48,7 @@ export const Faucet = () => {
             </p>
           </>,
         );
-        console.error("⚡️ ~ file: Faucet.tsx:getFaucetAddress ~ error", error);
+        console.error("⚡️ ~ 文件: Faucet.tsx:getFaucetAddress ~ 错误", error);
       }
     };
     getFaucetAddress();
@@ -69,7 +69,7 @@ export const Faucet = () => {
       setInputAddress(undefined);
       setSendValue("");
     } catch (error) {
-      console.error("⚡️ ~ file: Faucet.tsx:sendETH ~ error", error);
+      console.error("⚡️ ~ 文件: Faucet.tsx:sendETH ~ 错误", error);
       setLoading(false);
     }
   };

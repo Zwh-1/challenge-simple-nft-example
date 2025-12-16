@@ -3,21 +3,20 @@ import { DeployFunction } from "hardhat-deploy/types";
 import { Contract } from "ethers";
 
 /**
- * Deploys a contract named "YourCollectible" using the deployer account and
- * constructor arguments set to the deployer address
+ * 使用部署者账户部署名为"YourCollectible"的合约
  *
- * @param hre HardhatRuntimeEnvironment object.
+ * @param hre HardhatRuntimeEnvironment对象
  */
 const deployYourCollectible: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   /*
-    On localhost, the deployer account is the one that comes with Hardhat, which is already funded.
+    在本地主机上，部署者账户是Hardhat自带的账户，已经有资金。
 
-    When deploying to live networks (e.g `yarn deploy --network sepolia`), the deployer account
-    should have sufficient balance to pay for the gas fees for contract creation.
+    当部署到实时网络时（例如 `yarn deploy --network sepolia`），部署者账户
+    应该有足够的余额来支付合约创建的燃气费用。
 
-    You can generate a random account with `yarn generate` which will fill DEPLOYER_PRIVATE_KEY
-    with a random private key in the .env file (then used on hardhat.config.ts)
-    You can run the `yarn account` command to check your balance in every network.
+    你可以使用 `yarn generate` 命令生成一个随机账户，这会在.env文件中填充DEPLOYER_PRIVATE_KEY
+    （然后在hardhat.config.ts中使用）
+    你可以运行 `yarn account` 命令来检查你在每个网络中的余额。
   */
   const { deployer } = await hre.getNamedAccounts();
   const { deploy } = hre.deployments;
@@ -27,8 +26,7 @@ const deployYourCollectible: DeployFunction = async function (hre: HardhatRuntim
     // Contract constructor arguments
     args: [],
     log: true,
-    // autoMine: can be passed to the deploy function to make the deployment process faster on local networks by
-    // automatically mining the contract deployment transaction. There is no effect on live networks.
+    // autoMine: 可以传递给deploy函数，通过自动挖矿合约部署交易来加快本地网络上的部署过程。在实时网络上没有效果。
     autoMine: true,
   });
 
@@ -38,6 +36,6 @@ const deployYourCollectible: DeployFunction = async function (hre: HardhatRuntim
 
 export default deployYourCollectible;
 
-// Tags are useful if you have multiple deploy files and only want to run one of them.
-// e.g. yarn deploy --tags YourCollectible
+// Tags（标签）在你有多个部署文件且只想运行其中一个时很有用。
+// 例如：yarn deploy --tags YourCollectible
 deployYourCollectible.tags = ["YourCollectible"];

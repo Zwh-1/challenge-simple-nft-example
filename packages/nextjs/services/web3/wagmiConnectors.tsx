@@ -28,7 +28,7 @@ const wallets = [
 /**
  * wagmi connectors for the wagmi context
  */
-export const wagmiConnectors = connectorsForWallets(
+export const wagmiConnectors = typeof window !== "undefined" ? connectorsForWallets(
   [
     {
       groupName: "Supported Wallets",
@@ -40,4 +40,4 @@ export const wagmiConnectors = connectorsForWallets(
     appName: "scaffold-eth-2",
     projectId: scaffoldConfig.walletConnectProjectId,
   },
-);
+) : [];

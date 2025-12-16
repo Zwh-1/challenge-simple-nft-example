@@ -8,7 +8,7 @@ import { BanknotesIcon } from "@heroicons/react/24/outline";
 import { useTransactor } from "~~/hooks/scaffold-eth";
 import { useWatchBalance } from "~~/hooks/scaffold-eth/useWatchBalance";
 
-// Number of ETH faucet sends to an address
+// ETH水龙头发送到某个地址的次数
 const NUM_OF_ETH = "1";
 const FAUCET_ADDRESS = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
 
@@ -18,7 +18,7 @@ const localWalletClient = createWalletClient({
 });
 
 /**
- * FaucetButton button which lets you grab eth.
+ * 水龙头按钮，通过该按钮你可以获取以太币。
  */
 export const FaucetButton = () => {
   const { address, chain: ConnectedChain } = useAccount();
@@ -40,12 +40,12 @@ export const FaucetButton = () => {
       });
       setLoading(false);
     } catch (error) {
-      console.error("⚡️ ~ file: FaucetButton.tsx:sendETH ~ error", error);
+      console.error("⚡️ ~ 文件: FaucetButton.tsx:sendETH ~ 错误", error);
       setLoading(false);
     }
   };
 
-  // Render only on local chain
+  // 仅在本地链上渲染水龙头按钮
   if (ConnectedChain?.id !== hardhat.id) {
     return null;
   }

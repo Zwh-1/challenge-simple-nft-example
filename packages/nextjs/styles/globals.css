@@ -76,6 +76,7 @@
   color utility to any element that depends on these defaults.
 */
 @layer base {
+
   *,
   ::after,
   ::before,
@@ -120,6 +121,15 @@
 
 .link:hover {
   opacity: 80%;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
 
 /* -- EXTENSION OVERRIDES -- */
@@ -177,9 +187,53 @@
   --radius-box: 1rem;
 
   --tt-tailw: 6px;
-  --tt-bg: var(--color-primary); /* if you need a tooltip bg override */
+  --tt-bg: var(--color-primary);
+  /* 如果你需要覆盖工具提示背景 */
 }
 
 @theme inline {
   --font-space-grotesk: var(--font-space-grotesk);
+}
+
+@layer utilities {
+  .animate-fade-in-up {
+    animation: fadeInUp 0.8s ease-out forwards;
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  .delay-100 {
+    animation-delay: 0.1s;
+  }
+
+  .delay-200 {
+    animation-delay: 0.2s;
+  }
+
+  .delay-300 {
+    animation-delay: 0.3s;
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  @keyframes fadeInUp {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes float {
+
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+
+    50% {
+      transform: translateY(-20px);
+    }
+  }
 }

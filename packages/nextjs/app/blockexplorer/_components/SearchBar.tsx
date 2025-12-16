@@ -22,7 +22,7 @@ export const SearchBar = () => {
           return;
         }
       } catch (error) {
-        console.error("Failed to fetch transaction:", error);
+        console.error("获取交易失败:", error);
       }
     }
 
@@ -42,7 +42,7 @@ export const SearchBar = () => {
         onChange={e => setSearchInput(e.target.value)}
       />
       <button className="btn btn-sm btn-primary" type="submit">
-        Search
+        搜索
       </button>
     </form>
   );

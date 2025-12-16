@@ -57,28 +57,28 @@ export const ContractTabs = ({ address, contractData }: PageProps) => {
             className={`tab ${activeTab === "transactions" ? "tab-active" : ""}`}
             onClick={() => setActiveTab("transactions")}
           >
-            Transactions
+            交易
           </button>
           <button
             role="tab"
             className={`tab ${activeTab === "code" ? "tab-active" : ""}`}
             onClick={() => setActiveTab("code")}
           >
-            Code
+            代码
           </button>
           <button
             role="tab"
             className={`tab  ${activeTab === "storage" ? "tab-active" : ""}`}
             onClick={() => setActiveTab("storage")}
           >
-            Storage
+            存储
           </button>
           <button
             role="tab"
             className={`tab  ${activeTab === "logs" ? "tab-active" : ""}`}
             onClick={() => setActiveTab("logs")}
           >
-            Logs
+            日志
           </button>
         </div>
       )}

@@ -34,11 +34,11 @@ const BlockExplorer: NextPage = () => {
             <code className="italic bg-base-300 text-base font-bold"> targetNetwork </code> is not localhost
           </p>
           <p className="m-0">
-            - You are on <code className="italic bg-base-300 text-base font-bold">{targetNetwork.name}</code> .This
-            block explorer is only for <code className="italic bg-base-300 text-base font-bold">localhost</code>.
+            - 你正在 <code className="italic bg-base-300 text-base font-bold">{targetNetwork.name}</code> .这个
+            block explorer 只能用于 <code className="italic bg-base-300 text-base font-bold">本地</code>.
           </p>
           <p className="mt-1 break-normal">
-            - You can use{" "}
+            - 你可以使用{" "}
             <a className="text-accent" href={targetNetwork.blockExplorers?.default.url}>
               {targetNetwork.blockExplorers?.default.name}
             </a>{" "}
@@ -58,12 +58,12 @@ const BlockExplorer: NextPage = () => {
     if (hasError) {
       notification.error(
         <>
-          <p className="font-bold mt-0 mb-1">Cannot connect to local provider</p>
+          <p className="font-bold mt-0 mb-1">无法连接到本地提供者</p>
           <p className="m-0">
-            - Did you forget to run <code className="italic bg-base-300 text-base font-bold">yarn chain</code> ?
+            - 你忘记运行 <code className="italic bg-base-300 text-base font-bold">yarn chain</code> ?
           </p>
           <p className="mt-1 break-normal">
-            - Or you can change <code className="italic bg-base-300 text-base font-bold">targetNetwork</code> in{" "}
+            - 或者你可以修改 <code className="italic bg-base-300 text-base font-bold">targetNetwork</code> 在{" "}
             <code className="italic bg-base-300 text-base font-bold">scaffold.config.ts</code>
           </p>
         </>,

@@ -34,7 +34,7 @@ export const AddressStorageTab = ({ address }: { address: Address }) => {
         }
         setStorage(storageData);
       } catch (error) {
-        console.error("Failed to fetch storage:", error);
+        console.error("获取存储失败:", error);
       }
     };
 
@@ -48,13 +48,13 @@ export const AddressStorageTab = ({ address }: { address: Address }) => {
           <pre className="px-5 whitespace-pre-wrap break-words">
             {storage.map((data, i) => (
               <div key={i}>
-                <strong>Storage Slot {i}:</strong> {data}
+                <strong>存储 {i}:</strong> {data}
               </div>
             ))}
           </pre>
         </div>
       ) : (
-        <div className="text-lg">This contract does not have any variables.</div>
+        <div className="text-lg">这个合约没有变量。</div>
       )}
     </div>
   );

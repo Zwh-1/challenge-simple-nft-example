@@ -3,13 +3,12 @@ import scaffoldConfig from "~~/scaffold.config";
 import { ChainWithAttributes, NETWORKS_EXTRA_DATA } from "~~/utils/scaffold-eth";
 
 /**
- * Zustand Store
- *
- * You can add global state to the app using this useGlobalState, to get & set
- * values from anywhere in the app.
- *
- * Think about it as a global useState.
- */
+* Zustand 存储
+*
+* 你可以使用这个 useGlobalState 向应用添加全局状态，从应用中的任何地方获取和设置值。
+*
+* 可以把它看作是一个全局的 useState。
+*/
 
 type GlobalState = {
   nativeCurrency: {
