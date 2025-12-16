@@ -16,42 +16,42 @@ contract NFTMarketplace is ReentrancyGuard, Ownable, IERC721Receiver {
      * @dev NFT列表结构体
      */
     struct Listing {
-        uint256 tokenId;         // NFT代币ID
-        address nftContract;    // NFT合约地址
-        address seller;         // 卖家地址
-        uint256 price;          // 售价
-        bool active;            // 是否活跃
+        uint256 tokenId; // NFT代币ID
+        address nftContract; // NFT合约地址
+        address seller; // 卖家地址
+        uint256 price; // 售价
+        bool active; // 是否活跃
     }
 
     /**
      * @dev 带ID的NFT列表结构体
      */
     struct ListingWithId {
-        uint256 listingId;      // 列表ID
-        uint256 tokenId;        // NFT代币ID
-        address nftContract;    // NFT合约地址
-        address seller;         // 卖家地址
-        uint256 price;          // 售价
-        bool active;            // 是否活跃
+        uint256 listingId; // 列表ID
+        uint256 tokenId; // NFT代币ID
+        address nftContract; // NFT合约地址
+        address seller; // 卖家地址
+        uint256 price; // 售价
+        bool active; // 是否活跃
     }
 
     // 从列表ID映射到列表
     mapping(uint256 => Listing) public listings;
-    
+
     // 从NFT合约和代币ID映射到列表ID
     mapping(address => mapping(uint256 => uint256)) public tokenToListing;
-    
-    uint256 public nextListingId = 1;             // 下一个列表ID
-    uint256 public marketplaceFee = 250;           // 市场费用（2.5%，250个基点）
+
+    uint256 public nextListingId = 1; // 下一个列表ID
+    uint256 public marketplaceFee = 250; // 市场费用（2.5%，250个基点）
 
     /**
      * @dev 出价结构体
      */
     struct Offer {
-        address offerer;        // 出价者地址
-        uint256 amount;         // 出价金额
-        uint256 expiration;     // 过期时间
-        bool active;            // 是否活跃
+        address offerer; // 出价者地址
+        uint256 amount; // 出价金额
+        uint256 expiration; // 过期时间
+        bool active; // 是否活跃
     }
 
     // 每个列表的出价（合约中托管ETH）
@@ -60,11 +60,7 @@ contract NFTMarketplace is ReentrancyGuard, Ownable, IERC721Receiver {
     // 事件定义
     event OfferMade(uint256 indexed listingId, address indexed offerer, uint256 amount, uint256 expiration);
     event OfferCancelled(uint256 indexed listingId, address indexed offerer, uint256 amount);
-    event OfferAccepted(
-        uint256 indexed listingId,
-        address indexed offerer,
-        uint256 amount
-    );
+    event OfferAccepted(uint256 indexed listingId, address indexed offerer, uint256 amount);
     event NFTListed(
         uint256 indexed listingId,
         address indexed nftContract,
@@ -72,7 +68,7 @@ contract NFTMarketplace is ReentrancyGuard, Ownable, IERC721Receiver {
         address seller,
         uint256 price
     );
-    
+
     event NFTSold(
         uint256 indexed listingId,
         address indexed nftContract,
@@ -81,7 +77,7 @@ contract NFTMarketplace is ReentrancyGuard, Ownable, IERC721Receiver {
         address buyer,
         uint256 price
     );
-    
+
     event ListingCancelled(
         uint256 indexed listingId,
         address indexed nftContract,
@@ -103,28 +99,18 @@ contract NFTMarketplace is ReentrancyGuard, Ownable, IERC721Receiver {
      * @param tokenId NFT代币ID
      * @param price 售价
      */
-    function listNFT(
-        address nftContract,
-        uint256 tokenId,
-        uint256 price
-    ) external nonReentrant {
+    function listNFT(address nftContract, uint256 tokenId, uint256 price) external nonReentrant {
         require(price > 0, "Price must be greater than 0");
-        require(
-            IERC721(nftContract).ownerOf(tokenId) == msg.sender,
-            "You don't own this NFT"
-        );
+        require(IERC721(nftContract).ownerOf(tokenId) == msg.sender, "You don't own this NFT");
         require(
             IERC721(nftContract).isApprovedForAll(msg.sender, address(this)) ||
-            IERC721(nftContract).getApproved(tokenId) == address(this),
+                IERC721(nftContract).getApproved(tokenId) == address(this),
             "Marketplace not approved to transfer NFT"
         );
-        require(
-            tokenToListing[nftContract][tokenId] == 0,
-            "NFT already listed"
-        );
+        require(tokenToListing[nftContract][tokenId] == 0, "NFT already listed");
 
         uint256 listingId = nextListingId++;
-        
+
         listings[listingId] = Listing({
             tokenId: tokenId,
             nftContract: nftContract,
@@ -132,10 +118,47 @@ contract NFTMarketplace is ReentrancyGuard, Ownable, IERC721Receiver {
             price: price,
             active: true
         });
-        
+
         tokenToListing[nftContract][tokenId] = listingId;
 
         emit NFTListed(listingId, nftContract, tokenId, msg.sender, price);
+    }
+
+    /**
+     * @dev 批量列出NFT
+     * @param nftContract NFT合约地址
+     * @param tokenIds NFT代币ID数组
+     * @param price 统一售价
+     */
+    function batchListNFT(address nftContract, uint256[] calldata tokenIds, uint256 price) external nonReentrant {
+        require(price > 0, "Price must be greater than 0");
+        require(tokenIds.length > 0, "No tokens specified");
+
+        for (uint256 i = 0; i < tokenIds.length; i++) {
+            uint256 tokenId = tokenIds[i];
+
+            require(IERC721(nftContract).ownerOf(tokenId) == msg.sender, "You don't own this NFT");
+            require(
+                IERC721(nftContract).isApprovedForAll(msg.sender, address(this)) ||
+                    IERC721(nftContract).getApproved(tokenId) == address(this),
+                "Marketplace not approved to transfer NFT"
+            );
+            require(tokenToListing[nftContract][tokenId] == 0, "NFT already listed");
+
+            uint256 listingId = nextListingId++;
+
+            listings[listingId] = Listing({
+                tokenId: tokenId,
+                nftContract: nftContract,
+                seller: msg.sender,
+                price: price,
+                active: true
+            });
+
+            tokenToListing[nftContract][tokenId] = listingId;
+
+            emit NFTListed(listingId, nftContract, tokenId, msg.sender, price);
+        }
     }
 
     /**
@@ -162,32 +185,19 @@ contract NFTMarketplace is ReentrancyGuard, Ownable, IERC721Receiver {
         uint256 sellerAmount = listing.price - fee;
 
         // Transfer NFT to buyer
-        IERC721(listing.nftContract).safeTransferFrom(
-            listing.seller,
-            msg.sender,
-            listing.tokenId
-        );
+        IERC721(listing.nftContract).safeTransferFrom(listing.seller, msg.sender, listing.tokenId);
 
         // Transfer payment to seller
-        (bool success, ) = payable(listing.seller).call{value: sellerAmount}("");
+        (bool success, ) = payable(listing.seller).call{ value: sellerAmount }("");
         require(success, "Payment to seller failed");
 
         // Refund excess payment
         if (msg.value > listing.price) {
-            (bool refundSuccess, ) = payable(msg.sender).call{
-                value: msg.value - listing.price
-            }("");
+            (bool refundSuccess, ) = payable(msg.sender).call{ value: msg.value - listing.price }("");
             require(refundSuccess, "Refund failed");
         }
 
-        emit NFTSold(
-            listingId,
-            listing.nftContract,
-            listing.tokenId,
-            listing.seller,
-            msg.sender,
-            listing.price
-        );
+        emit NFTSold(listingId, listing.nftContract, listing.tokenId, listing.seller, msg.sender, listing.price);
     }
 
     /**
@@ -197,21 +207,14 @@ contract NFTMarketplace is ReentrancyGuard, Ownable, IERC721Receiver {
     function cancelListing(uint256 listingId) external nonReentrant {
         Listing storage listing = listings[listingId];
         require(listing.active, "Listing not active");
-        require(
-            listing.seller == msg.sender || owner() == msg.sender,
-            "Only seller or owner can cancel"
-        );
+        require(listing.seller == msg.sender || owner() == msg.sender, "Only seller or owner can cancel");
 
         listing.active = false;
         tokenToListing[listing.nftContract][listing.tokenId] = 0;
 
-        emit ListingCancelled(
-            listingId,
-            listing.nftContract,
-            listing.tokenId,
-            listing.seller
-        );
+        emit ListingCancelled(listingId, listing.nftContract, listing.tokenId, listing.seller);
     }
+
     /**
      * @dev 暂停NFT列表（不删除映射，允许稍后恢复）
      * @param listingId 列表ID
@@ -237,8 +240,7 @@ contract NFTMarketplace is ReentrancyGuard, Ownable, IERC721Receiver {
         IERC721 nft = IERC721(listing.nftContract);
         require(nft.ownerOf(listing.tokenId) == listing.seller, "Seller no longer owns");
         require(
-            nft.isApprovedForAll(listing.seller, address(this)) ||
-            nft.getApproved(listing.tokenId) == address(this),
+            nft.isApprovedForAll(listing.seller, address(this)) || nft.getApproved(listing.tokenId) == address(this),
             "Marketplace not approved"
         );
         listing.active = true;
@@ -269,11 +271,7 @@ contract NFTMarketplace is ReentrancyGuard, Ownable, IERC721Receiver {
      * @param tokenId NFT代币ID
      * @return 列表ID
      */
-    function getActiveListing(address nftContract, uint256 tokenId)
-        external
-        view
-        returns (uint256)
-    {
+    function getActiveListing(address nftContract, uint256 tokenId) external view returns (uint256) {
         return tokenToListing[nftContract][tokenId];
     }
 
@@ -283,18 +281,18 @@ contract NFTMarketplace is ReentrancyGuard, Ownable, IERC721Receiver {
      */
     function getAllActiveListings() external view returns (ListingWithId[] memory) {
         uint256 activeCount = 0;
-        
+
         // Count active listings
         for (uint256 i = 1; i < nextListingId; i++) {
             if (listings[i].active) {
                 activeCount++;
             }
         }
-        
+
         // Create array of active listings with IDs
         ListingWithId[] memory activeListings = new ListingWithId[](activeCount);
         uint256 currentIndex = 0;
-        
+
         for (uint256 i = 1; i < nextListingId; i++) {
             if (listings[i].active) {
                 activeListings[currentIndex] = ListingWithId({
@@ -308,7 +306,7 @@ contract NFTMarketplace is ReentrancyGuard, Ownable, IERC721Receiver {
                 currentIndex++;
             }
         }
-        
+
         return activeListings;
     }
 
@@ -324,12 +322,9 @@ contract NFTMarketplace is ReentrancyGuard, Ownable, IERC721Receiver {
         require(msg.value > 0, "Offer must be > 0");
         require(expiration > block.timestamp, "Expiration must be in future");
 
-        listingOffers[listingId].push(Offer({
-            offerer: msg.sender,
-            amount: msg.value,
-            expiration: expiration,
-            active: true
-        }));
+        listingOffers[listingId].push(
+            Offer({ offerer: msg.sender, amount: msg.value, expiration: expiration, active: true })
+        );
 
         emit OfferMade(listingId, msg.sender, msg.value, expiration);
     }
@@ -346,7 +341,7 @@ contract NFTMarketplace is ReentrancyGuard, Ownable, IERC721Receiver {
         require(offer.offerer == msg.sender, "Not offerer");
 
         offer.active = false;
-        (bool refunded, ) = payable(msg.sender).call{value: offer.amount}("");
+        (bool refunded, ) = payable(msg.sender).call{ value: offer.amount }("");
         require(refunded, "Refund failed");
 
         emit OfferCancelled(listingId, msg.sender, offer.amount);
@@ -370,8 +365,7 @@ contract NFTMarketplace is ReentrancyGuard, Ownable, IERC721Receiver {
         IERC721 nft = IERC721(listing.nftContract);
         require(nft.ownerOf(listing.tokenId) == listing.seller, "Seller no longer owns");
         require(
-            nft.isApprovedForAll(listing.seller, address(this)) ||
-            nft.getApproved(listing.tokenId) == address(this),
+            nft.isApprovedForAll(listing.seller, address(this)) || nft.getApproved(listing.tokenId) == address(this),
             "Marketplace not approved"
         );
 
@@ -386,7 +380,7 @@ contract NFTMarketplace is ReentrancyGuard, Ownable, IERC721Receiver {
         // transfer NFT
         nft.safeTransferFrom(listing.seller, offer.offerer, listing.tokenId);
         // pay seller
-        (bool paid, ) = payable(listing.seller).call{value: sellerAmount}("");
+        (bool paid, ) = payable(listing.seller).call{ value: sellerAmount }("");
         require(paid, "Payment to seller failed");
 
         emit OfferAccepted(listingId, offer.offerer, offer.amount);
@@ -401,6 +395,7 @@ contract NFTMarketplace is ReentrancyGuard, Ownable, IERC721Receiver {
     function getOffers(uint256 listingId) external view returns (Offer[] memory) {
         return listingOffers[listingId];
     }
+
     /**
      * @dev 设置市场费用
      * @param newFee 新费用（基点）
@@ -416,8 +411,8 @@ contract NFTMarketplace is ReentrancyGuard, Ownable, IERC721Receiver {
     function withdrawFees() external onlyOwner {
         uint256 balance = address(this).balance;
         require(balance > 0, "No fees to withdraw");
-        
-        (bool success, ) = payable(owner()).call{value: balance}("");
+
+        (bool success, ) = payable(owner()).call{ value: balance }("");
         require(success, "Withdrawal failed");
     }
 
@@ -427,23 +422,14 @@ contract NFTMarketplace is ReentrancyGuard, Ownable, IERC721Receiver {
      * @param tokenId NFT代币ID
      * @param to 接收地址
      */
-    function emergencyRecoverNFT(
-        address nftContract,
-        uint256 tokenId,
-        address to
-    ) external onlyOwner {
+    function emergencyRecoverNFT(address nftContract, uint256 tokenId, address to) external onlyOwner {
         IERC721(nftContract).safeTransferFrom(address(this), to, tokenId);
     }
 
     /**
      * @dev 支持通过safeTransferFrom接收ERC721代币
      */
-    function onERC721Received(
-        address,
-        address,
-        uint256,
-        bytes calldata
-    ) external pure override returns (bytes4) {
+    function onERC721Received(address, address, uint256, bytes calldata) external pure override returns (bytes4) {
         return IERC721Receiver.onERC721Received.selector;
     }
 
@@ -455,16 +441,16 @@ contract NFTMarketplace is ReentrancyGuard, Ownable, IERC721Receiver {
      * @dev 盲拍结构体
      */
     struct BlindAuction {
-        uint256 auctionId;          // 拍卖ID
-        uint256 tokenId;            // NFT代币ID
-        address nftContract;        // NFT合约地址
-        address seller;             // 卖家地址
-        uint256 minBid;             // 最低出价
-        uint256 commitEnd;          // 提交阶段结束时间
-        uint256 revealEnd;          // 揭示阶段结束时间
-        bool finalized;             // 是否已结束
-        address highestBidder;      // 最高出价者
-        uint256 highestBid;         // 最高出价金额
+        uint256 auctionId; // 拍卖ID
+        uint256 tokenId; // NFT代币ID
+        address nftContract; // NFT合约地址
+        address seller; // 卖家地址
+        uint256 minBid; // 最低出价
+        uint256 commitEnd; // 提交阶段结束时间
+        uint256 revealEnd; // 揭示阶段结束时间
+        bool finalized; // 是否已结束
+        address highestBidder; // 最高出价者
+        uint256 highestBid; // 最高出价金额
     }
 
     // 按ID存储的盲拍
@@ -512,8 +498,7 @@ contract NFTMarketplace is ReentrancyGuard, Ownable, IERC721Receiver {
         IERC721 nft = IERC721(nftContract);
         require(nft.ownerOf(tokenId) == msg.sender, "You don't own this NFT");
         require(
-            nft.isApprovedForAll(msg.sender, address(this)) ||
-            nft.getApproved(tokenId) == address(this),
+            nft.isApprovedForAll(msg.sender, address(this)) || nft.getApproved(tokenId) == address(this),
             "Marketplace not approved"
         );
 
@@ -607,7 +592,7 @@ contract NFTMarketplace is ReentrancyGuard, Ownable, IERC721Receiver {
             nft.safeTransferFrom(address(this), a.highestBidder, a.tokenId);
 
             // Pay seller
-            (bool paid, ) = payable(a.seller).call{value: sellerAmount}("");
+            (bool paid, ) = payable(a.seller).call{ value: sellerAmount }("");
             require(paid, "Seller payout failed");
         } else {
             // No valid bids; return NFT to seller
@@ -621,7 +606,7 @@ contract NFTMarketplace is ReentrancyGuard, Ownable, IERC721Receiver {
             address b = bidders[i];
             uint256 amt = revealedAmounts[auctionId][b];
             if (amt > 0 && b != winner) {
-                (bool refunded, ) = payable(b).call{value: amt}("");
+                (bool refunded, ) = payable(b).call{ value: amt }("");
                 require(refunded, "Refund failed");
             }
         }
